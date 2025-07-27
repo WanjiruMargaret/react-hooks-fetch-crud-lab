@@ -4,63 +4,39 @@ import QuestionForm from "./QuestionForm";
 import QuestionList from "./QuestionList";
 
 function App() {
+  const [page, setPage] = useState("List");
   const [questions, setQuestions] = useState([]);
-  const [view, setView] = useState("list");
 
   useEffect(() => {
-    let isMounted = true;
-
     fetch("http://localhost:4000/questions")
-      .then((r) => r.json())
-      .then((data) => {
-        if (isMounted) setQuestions(data);
-      });
-
-    return () => {
-      isMounted = false;
-    };
+      .then((res) => res.json())
+      .then((data) => setQuestions(data));
   }, []);
 
   function handleAddQuestion(newQuestion) {
     setQuestions((prev) => [...prev, newQuestion]);
-    setView("list");
   }
 
-  function handleDeleteQuestion(id) {
-    fetch(`http://localhost:4000/questions/${id}`, {
-      method: "DELETE",
-    }).then(() => {
-      setQuestions((prev) => prev.filter((q) => q.id !== id));
-    });
+  function handleDeleteQuestion(deletedId) {
+    setQuestions((prev) => prev.filter((q) => q.id !== deletedId));
   }
 
-  function handleUpdateQuestion(id, correctIndex) {
-    fetch(`http://localhost:4000/questions/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ correctIndex }),
-    })
-      .then((r) => r.json())
-      .then((updated) => {
-        setQuestions((prev) =>
-          prev.map((q) => (q.id === updated.id ? updated : q))
-        );
-      });
+  function handleUpdateQuestion(updatedQuestion) {
+    setQuestions((prev) =>
+      prev.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q))
+    );
   }
 
   return (
     <main>
-      <AdminNavBar onChangePage={setView} />
-
-      {view === "form" ? (
+      <AdminNavBar onChangePage={setPage} />
+      {page === "Form" ? (
         <QuestionForm onAddQuestion={handleAddQuestion} />
       ) : (
         <QuestionList
           questions={questions}
-          onDeleteQuestion={handleDeleteQuestion}
-          onUpdateQuestion={handleUpdateQuestion}
+          onDelete={handleDeleteQuestion}
+          onUpdate={handleUpdateQuestion}
         />
       )}
     </main>

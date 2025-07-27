@@ -7,19 +7,20 @@ function QuestionForm({ onAddQuestion }) {
     answer2: "",
     answer3: "",
     answer4: "",
-    correctIndex: "0",
+    correctIndex: 0,
   });
 
-  function handleChange(e) {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   }
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    const newQuestion = {
+  function handleSubmit(event) {
+    event.preventDefault();
+    const question = {
       prompt: formData.prompt,
       answers: [
         formData.answer1,
@@ -32,13 +33,13 @@ function QuestionForm({ onAddQuestion }) {
 
     fetch("http://localhost:4000/questions", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newQuestion),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(question),
     })
       .then((r) => r.json())
-      .then(onAddQuestion);
+      .then((newQuestion) => {
+        if (onAddQuestion) onAddQuestion(newQuestion);
+      });
   }
 
   return (
@@ -47,56 +48,27 @@ function QuestionForm({ onAddQuestion }) {
       <form onSubmit={handleSubmit}>
         <label>
           Prompt:
-          <input
-            type="text"
-            name="prompt"
-            value={formData.prompt}
-            onChange={handleChange}
-          />
+          <input type="text" name="prompt" value={formData.prompt} onChange={handleChange} />
         </label>
         <label>
           Answer 1:
-          <input
-            type="text"
-            name="answer1"
-            value={formData.answer1}
-            onChange={handleChange}
-          />
+          <input type="text" name="answer1" value={formData.answer1} onChange={handleChange} />
         </label>
         <label>
           Answer 2:
-          <input
-            type="text"
-            name="answer2"
-            value={formData.answer2}
-            onChange={handleChange}
-          />
+          <input type="text" name="answer2" value={formData.answer2} onChange={handleChange} />
         </label>
         <label>
           Answer 3:
-          <input
-            type="text"
-            name="answer3"
-            value={formData.answer3}
-            onChange={handleChange}
-          />
+          <input type="text" name="answer3" value={formData.answer3} onChange={handleChange} />
         </label>
         <label>
           Answer 4:
-          <input
-            type="text"
-            name="answer4"
-            value={formData.answer4}
-            onChange={handleChange}
-          />
+          <input type="text" name="answer4" value={formData.answer4} onChange={handleChange} />
         </label>
         <label>
           Correct Answer:
-          <select
-            name="correctIndex"
-            value={formData.correctIndex}
-            onChange={handleChange}
-          >
+          <select name="correctIndex" value={formData.correctIndex} onChange={handleChange}>
             <option value="0">{formData.answer1}</option>
             <option value="1">{formData.answer2}</option>
             <option value="2">{formData.answer3}</option>
